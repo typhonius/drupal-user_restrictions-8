@@ -1,0 +1,57 @@
+<?php
+// $Id$
+
+/**
+ * Implementation of hook_schema().
+ */
+function user_restrictions_schema() {
+  $schema['user_restrictions'] = array(
+    'description' => t('Stores user restrictions.'),
+    'fields' => array(
+      'urid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => t('Primary Key: Unique user restriction ID.'),
+      ),
+      'mask' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t('Text mask used for filtering restrictions.'),
+      ),
+      'type' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t('Type of restriction: name or mail'),
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+        'description' => t('Whether restriction is to allow(1) or deny(0) access.'),
+      ),
+    ),
+    'primary key' => array('urid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * @defgroup user_restrictions-updates-6.x-to-7.x User restrictions updates from 6.x to 7.x
+ * @{
+ */
+ 
+/**
+ * Import username and e-mail masks from the {access} table.
+ */
+function user_restrictions_update_7000() {
+  $ret = array();
+  $ret[] = update_sql("INSERT INTO {user_restrictions} SELECT * FROM {access} WHERE type IN ('%s', '%s')", 'mail', 'name');
+  
+  return $ret;
+}

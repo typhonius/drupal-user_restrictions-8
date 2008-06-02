@@ -1,0 +1,7 @@
+/* $Id$ */
+
+#access-rules .access-type, #access-rules .rule-type {
+  margin-right: 0;
+  margin-left: 1em;
+  float: right;
+}
