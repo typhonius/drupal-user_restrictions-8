@@ -12,7 +12,6 @@
 function user_restrictions_check() {
   $output = drupal_get_form('user_restrictions_check_user');
   $output .= drupal_get_form('user_restrictions_check_mail');
-  $output .= drupal_get_form('user_restrictions_check_host');
   return $output;
 }
 
