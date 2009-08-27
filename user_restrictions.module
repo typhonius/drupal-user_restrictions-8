@@ -10,36 +10,36 @@
  * Implementation of hook_menu().
  */
 function user_restrictions_menu() {
-  $items['admin/user/restrictions'] = array(
+  $items['admin/config/people/restrictions'] = array(
     'title' => 'User restrictions',
     'description' => 'Specify rules for restricted usernames and e-mail addresses.',
     'page callback' => 'user_restrictions_name',
     'access arguments' => array('administer users'),
   );
-  $items['admin/user/restrictions/name'] = array(
+  $items['admin/config/people/restrictions/name'] = array(
     'title' => 'Usernames',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
   );
-  $items['admin/user/restrictions/email'] = array(
+  $items['admin/config/people/restrictions/email'] = array(
     'title' => 'E-mail addresses',
     'page callback' => 'user_restrictions__email',
     'access arguments' => array('administer users'),
     'type' => MENU_LOCAL_TASK,
   );
-  $items['admin/user/restrictions/check'] = array(
+  $items['admin/config/people/restrictions/check'] = array(
     'title' => 'Check restriction',
     'page callback' => 'user_restrictions_check',
     'access arguments' => array('administer users'),
     'type' => MENU_LOCAL_TASK,
   );
-  $items['admin/user/restrictions/edit'] = array(
+  $items['admin/config/people/restrictions/edit'] = array(
     'title' => 'Edit restriction',
     'page callback' => 'user_restrictions_edit',
     'access arguments' => array('administer users'),
     'type' => MENU_CALLBACK,
   );
-  $items['admin/user/restrictions/delete'] = array(
+  $items['admin/config/people/restrictions/delete'] = array(
     'title' => 'Delete restriction',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('user_restrictions_delete_confirm'),
@@ -128,3 +128,4 @@ function user_restrictions_is_denied($type, $mask) {
   $sql = "SELECT 1 FROM {user_restrictions} WHERE type = '%s' AND LOWER('%s') LIKE LOWER(mask) AND status = %d";
   return db_result(db_query_range($sql, $type, $mask, 0, 0, 1)) && !db_result(db_query_range($sql, $type, $mask, 1, 0, 1));
 }
+
