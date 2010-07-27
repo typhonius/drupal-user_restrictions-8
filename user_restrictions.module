@@ -7,125 +7,245 @@
  */
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_form_FORM_ID_alter().
  */
-function user_restrictions_menu() {
-  $items['admin/config/people/restrictions'] = array(
-    'title' => 'User restrictions',
-    'description' => 'Specify rules for restricted usernames and e-mail addresses.',
-    'page callback' => 'user_restrictions_name',
-    'access arguments' => array('administer users'),
-  );
-  $items['admin/config/people/restrictions/name'] = array(
-    'title' => 'Usernames',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -10,
-  );
-  $items['admin/config/people/restrictions/email'] = array(
-    'title' => 'E-mail addresses',
-    'page callback' => 'user_restrictions__email',
-    'access arguments' => array('administer users'),
-    'type' => MENU_LOCAL_TASK,
-  );
-  $items['admin/config/people/restrictions/check'] = array(
-    'title' => 'Check restriction',
-    'page callback' => 'user_restrictions_check',
-    'access arguments' => array('administer users'),
-    'type' => MENU_LOCAL_TASK,
-  );
-  $items['admin/config/people/restrictions/edit'] = array(
-    'title' => 'Edit restriction',
-    'page callback' => 'user_restrictions_edit',
-    'access arguments' => array('administer users'),
-    'type' => MENU_CALLBACK,
-  );
-  $items['admin/config/people/restrictions/delete'] = array(
-    'title' => 'Delete restriction',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('user_restrictions_delete_confirm'),
-    'access arguments' => array('administer users'),
-    'type' => MENU_CALLBACK,
-  );
-
-  return $items;
+function user_restrictions_form_user_login_alter(&$form, &$form_state) {
+  $form['#validate'][] = 'user_restrictions_login_form_validate';
 }
 
 /**
- * Implementation of hook_user().
+ * Implements hook_form_FORM_ID_alter().
  */
-function user_restrictions_user($type, &$edit, &$account, $category = NULL) {
-  if ($type == 'validate' && $category == 'account') {
-    return _user_restrictions_edit_validate(arg(1), $edit);
-  }
-}
-
-function user_restrictions_init() {
-  drupal_add_css(drupal_get_path('module', 'user_restrictions') .'/user_restrictions.css', 'module');
+function user_restrictions_form_user_login_block_alter(&$form, &$form_state) {
+  $form['#validate'][] = 'user_restrictions_login_form_validate';
 }
 
 /**
- * A FAPI validate handler. Sets an error if supplied username has been 
- * denied access.
+ * Implements hook_form_FORM_ID_alter().
  */
-function user_restrictions_login_name_validate($form, &$form_state) {
-  if (isset($form_state['values']['name'])) {
-    if (user_restrictions('user', $form_state['values']['name'])) {
-      // Denied by access rules.
-      form_set_error('name', t('The name %name is a reserved username.', array('%name' => $form_state['values']['name'])));
-    }
-  }
-}
-
-function _user_restrictions_edit_validate($uid, &$edit) {
-  $user = user_load(array('uid' => $uid));
-  // Validate the username:
-  if (user_access('change own username') || user_access('administer users') || !$user->uid) {
-    if (user_restrictions('user', $edit['name'])) {
-      form_set_error('name', t('The name %name has been denied access.', array('%name' => $edit['name'])));
-    }
-  }
-  // Validate the e-mail address:
-  if (user_restrictions('mail', $edit['mail'])) {
-    form_set_error('mail', t('The e-mail address %email has been denied access.', array('%email' => $edit['mail'])));
-  }
+function user_restrictions_form_user_profile_form_alter(&$form, &$form_state) {
+  $form['#validate'][] = 'user_restrictions_user_profile_form_validate';
 }
 
 /**
- * Implementation of hook_help().
+ * Implements hook_form_FORM_ID_alter().
+ */
+function user_restrictions_form_user_register_form_alter(&$form, &$form_state) {
+  $form['#validate'][] = 'user_restrictions_user_register_form_validate';
+}
+
+/**
+ * Implements hook_help().
  */
 function user_restrictions_help($path, $arg) {
   global $user;
 
   switch ($path) {
     case 'admin/help#user_restrictions':
-      $output = '<p>' . t('The access module allows you to specify rules for allowable usernames, e-mail addresses, or IP addresses/hostnames. A rule may either explicitly "allow" access or "deny" access based on the rule\'s <em>Access type</em>, <em>Rule type</em>, and <em>Mask</em>. For <em>Username</em> and <em>E-Mail</em> rule types, if the username or e-mail address of an existing account or new registration matches the <em>Mask</em> of a "deny" rule, but not an "allow" rule, then the account will not be created (for new registrations) or able to log in (for existing accounts).') . '</p>';
-      $output .= '<p>' . t('For example, you could use the access module to restrict site access to a few specific IP addresses (or a subnet of addresses). The access module could also be used to ban poorly-behaving bots (that always use the same IP address), or prevent new users from registering with usernames like "Admin" or with e-mail addresses from certain domains. Existing logged-in users with e-mail addresses or usernames that match a "deny" rule (but not an "allow" rule) are not immediately logged out (but once they log out, may not log back in), Be careful to not create a "deny" rule that includes your administrative account.') . '</p>';
-      $output .= '<p>' . t('Visitors attempting to view your site from an IP address or hostname that matches a "deny" rule will receive a "banned address" message. Drupal checks incoming addresses for potential bans before any other Drupal modules or themes are loaded.') .'</p>';
-      $output .= '<p>' . t('For more information, see the online handbook entry for <a href="@access">Access module</a>.', array('@access' => 'http://drupal.org/handbook/modules/access/')) .'</p>';
-    case 'admin/user/restrictions':
-      return '<p>'. t('Set up rules for allowable usernames and e-mail address. A rule may either explicitly "allow" access or "deny" access based on the rule\'s <em>Access type</em>, <em>Rule type</em>, and <em>Mask</em>. If the username or e-mail address of an existing account or new registration matches a "deny" rule, but not an "allow" rule, then the account will not be created (for new registrations) or able to log in (for existing accounts). An "allow" or "deny" host rule based on a hostname or IP address applies to each page view.') . '</p>';
+      $output = '<p>' . t(
+        "The user restrictions module allows you to specify rules for allowable usernames, or e-mail addresses. A rule may either explicitly <q>allow</q> access or <q>deny</q> access based on the rule's <em>Access type</em>, <em>Rule type</em>, and <em>Mask</em>. For <em>Username</em> and <em>E-Mail</em> rule types, if the username or e-mail address of an existing account or new registration matches the <em>Mask</em> of a <q>deny</q> rule, but not an <q>allow</q> rule, then the account will not be created (for new registrations) or able to log in (for existing accounts).
+        The user restrictions module could also be used to prevent new users from registering with usernames like <q>Admin</q> or with e-mail addresses from certain domains. Existing logged-in users with e-mail addresses or usernames that match a <q>deny</q> rule (but not an <q>allow</q> rule) are not immediately logged out (but once they log out, may not log back in), Be careful to not create a <q>deny</q> rule that includes your administrative account.
+        Visitors attempting to view your site from an IP address or hostname that matches a <q>deny</q> rule will receive a <q>banned address</q> message. Drupal checks incoming addresses for potential bans before any other Drupal modules or themes are loaded."
+      ) .'</p>';
+    case 'admin/config/people/restrictions':
+      return '<p>'. t("Set up rules for allowable usernames and e-mail address. A rule may either explicitly <q>allow</q> access or <q>deny</q> access based on the rule's <em>Access type</em>, <em>Rule type</em>, and <em>Mask</em>. If the username or e-mail address of an existing account or new registration matches a <q>deny</q> rule, but not an <q>allow</q> rule, then the account will not be created (for new registrations) or able to log in (for existing accounts).") . '</p>';
   }
 }
 
 /**
- * Implementation of hook_forms().
+ * Implements hook_menu().
  */
-function user_restrictions_forms() {
-  $forms['user_restrictions_add_form']['callback'] = 'user_restrictions_form';
-  $forms['user_restrictions_edit_form']['callback'] = 'user_restrictions_form';
-  return $forms;
+function user_restrictions_menu() {
+  $edit_restrictions = array('edit user restrictions');
+  $items = array();
+
+  $items['admin/config/people/restrictions'] = array(
+    'title' => 'User restrictions',
+    'description' => 'Specify rules for restricted usernames and e-mail addresses.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('user_restrictions_overview_form'),
+    'access arguments' => $edit_restrictions,
+    'file' => 'user_restrictions.admin.inc',
+  );
+
+  $items['admin/config/people/restrictions/list'] = array(
+    'title' => 'List',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+    'file' => 'user_restrictions.admin.inc',
+  );
+
+  $items['admin/config/people/restrictions/add'] = array(
+    'title' => 'Add rule',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('user_restrictions_edit_rule_form'),
+    'access arguments' => $edit_restrictions,
+    'type' => MENU_LOCAL_ACTION,
+    'file' => 'user_restrictions.admin.inc',
+  );
+
+  $items['admin/config/people/restrictions/%user_restrictions/edit'] = array(
+    'title' => 'Edit restriction',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('user_restrictions_edit_rule_form', 4),
+    'access arguments' => $edit_restrictions,
+    'type' => MENU_CALLBACK,
+    'file' => 'user_restrictions.admin.inc',
+  );
+
+  $items['admin/config/people/restrictions/%user_restrictions/delete'] = array(
+    'title' => 'Delete rule',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('user_restrictions_delete_rule_form', 4),
+    'access arguments' => $edit_restrictions,
+    'type' => MENU_CALLBACK,
+    'file' => 'user_restrictions.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function user_restrictions_permission() {
+  $perms = array(
+    'administer user restrictions' => array(
+      'title' => t('Administer user restrictions'),
+      'restrict access' => TRUE,
+    ),
+    'edit user restriction rules' => array(
+      'title' => t('Edit user restriction rules'),
+      'restrict access' => TRUE,
+    ),
+    'by-pass user restriction rules' => array(
+      'title' => t('By-pass user restriction rules'),
+      'restrict access' => TRUE,
+    ),
+    'by-pass user restriction rules at login' => array(
+      'title' => t('By-pass user restriction rules at login'),
+      'restrict access' => TRUE,
+    ),
+  );
+
+  return $perms;
+}
+
+/**
+ * Form validation handler for user_login(), and user_login_block().
+ *
+ * @see user_login()
+ * @see user_login_block()
+ */
+function user_restrictions_login_form_validate($form, &$form_state) {
+  if (!empty($form_state['uid']) && isset($form_state['values']['name'])) {
+    $account = user_load($form_state['uid']);
+    if (!empty($account)) {
+      if (user_access('by-pass user restriction rules', $access)) {
+        return;
+      }
+
+      // Use $account->name for compatibility with modules that allow users to
+      // log in using something different from the username.
+      $error = user_restrictions_user_check(
+        USER_RESTRICTIONS_USERNAME, $account->name, TRUE
+      );
+      if ($error) {
+        // Denied by access rules.
+        form_set_error('name', $error);
+      }
+    }
+  }
+}
+
+/**
+ * Form validation handler for user_profile_form().
+ *
+ * @see user_profile_form()
+ */
+function user_restrictions_user_profile_form_validate($form, &$form_state) {
+  $account = $form_state['user'];
+  if (user_access('by-pass user restriction rules')) {
+    return;
+  }
+
+  if (isset($form_state['values']['name'])) {
+    if ($error = user_restrictions_user_check(USER_RESTRICTIONS_USERNAME, $form_state['values']['name'])) {
+      form_set_error('name', $error);
+    }
+  }
+
+  // Validate the e-mail address.
+  if ($error = user_restrictions_user_check(USER_RESTRICTIONS_EMAIL, $form_state['values']['mail'])) {
+    form_set_error('mail', $error);
+  }
+}
+
+/**
+ * Form validation handler for user_register_form().
+ *
+ * @see user_register_form()
+ */
+function user_restrictions_user_register_form_validate($form, &$form_state) {
+  if (isset($form_state['values']['name'])) {
+    if ($error = user_restrictions_user_check(USER_RESTRICTIONS_USERNAME, $form_state['values']['name'])) {
+      form_set_error('name', $error);
+    }
+  }
+
+  // Validate the e-mail address.
+  if ($error = user_restrictions_user_check(USER_RESTRICTIONS_EMAIL, $form_state['values']['mail'])) {
+    form_set_error('mail', $error);
+  }
 }
 
 /**
  * Checks user input against user restrictions.
  *
  * This was handled by drupal_is_denied() in version of Drupal prior to 7.x.
+ *
+ * @param $type
+ *   The type of input to check (USER_RESTRICTIONS_EMAIL,
+ *   USER_RESTRICTIONS_USERNAME).
+ * @param $mask
+ *   The input to check.
+ * @param $options
+ *   An array of optional options. The actually used options are:
+ *   - login: when TRUE, the input comes from the login form;
+ *
+ * @return
+ *   A message error if there are restrictions agains the entered value, or an
+ *   empty string if there are no restrictions that do not allow to use the
+ *   entered value.
  */
-function user_restrictions_is_denied($type, $mask) {
-  // We deny access if the only matching records in the {user_restrictions} table have
-  // status 0 (deny). If any have status 1 (allow), or if there are no
-  // matching records, we allow access.
-  $sql = "SELECT 1 FROM {user_restrictions} WHERE type = '%s' AND LOWER('%s') LIKE LOWER(mask) AND status = %d";
-  return db_result(db_query_range($sql, $type, $mask, 0, 0, 1)) && !db_result(db_query_range($sql, $type, $mask, 1, 0, 1));
+function user_restrictions_user_check($type, $mask, array $options = array()) {
+  // We deny access if the only matching records in the {user_restrictions}
+  // table have status 0 (deny). If any have status 1 (allow), or if there are
+  // no matching records, we allow access.
+
+  $options += array('login' => FALSE);
+  $sql = 'SELECT 1 FROM {user_restrictions} WHERE type = :type AND LOWER(:mask) LIKE LOWER(mask) AND status = :status';
+  $denied = (
+    db_query_range($sql, 0, 1, array(':type' => $type, ':mask' => $mask, ':status' => 0))->fetchField() &&
+    !db_query_range($sql, 0, 1, array(':type' => $type, ':mask' => $mask, ':status' => 1))->fetchField()
+  );
+  if (!$denied) {
+    return '';
+  }
+
+  return $type == USER_RESTRICTIONS_EMAIL ? t('The email address %email is reserved, and cannot be used.', array('%email' => $mask)) :
+    t('The name %name is a reserved username, and cannot be used.', array('%username' => $mask));
 }
 
+/**
+ * Loads the restriction rule from the database.
+ *
+ * @param $urid
+ *   The ID of the restriction rule.
+ */
+function user_restrictions_load($urid) {
+  $rule = db_query('SELECT * FROM {user_restrictions} WHERE urid = :urid', array(':urid' => $urid))
+    ->fetchObject();
+
+  return empty($rule) ? FALSE : $rule;
+}

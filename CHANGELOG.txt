@@ -1,0 +1,11 @@
+# $Id$
+# All the dates reported here are referred to UTC.
+
+2010-07-11
+----------
+#200789 by kiam: Change the error message shown when a username is not allowed from the restriction rules.
+#849998 by kiam: Change the permissions used by the module.
+
+2010-07-07
+----------
+#268405 by kiam: Help text cleanup.

@@ -1,7 +1,8 @@
 ; $Id$
 name = User restrictions
 description = Specify rules for restricting usernames and e-mail addresses.
-version = VERSION
 core = 7.x
+configure = admin/config/people/restrictions
+files[] = user_restrictions.install
 files[] = user_restrictions.module
 files[] = user_restrictions.admin.inc

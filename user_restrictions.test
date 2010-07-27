@@ -1,71 +1,68 @@
 <?php
 // $Id$
 
-class UserRestrictionsTestCase extends DrupalTestCase {
-  var $_cleanup_masks = array();
-
-  function getInfo() {
-    return array('name' => t('User access rules'),
-                 'description' => t('Assure that negative and positive access rules behave as designed.') ,
-                 'group' => 'User tests'
-           );
+class UserRestrictionsTestCase extends DrupalWebTestCase {
+  protected function addMask($mask, $type, $status = 0) {
+    db_query(
+      "INSERT INTO {user_restrictions} (mask, type, status) VALUES ('%s', %d, %d)",
+      $mask, $type, $status
+    );
   }
 
-  function addMask($mask, $type, $status = 0) {
-    db_query("INSERT INTO {access} (mask, type, status) VALUES ('%s', '%s', %d)", $mask, $type, $status);
-    $aid = db_last_insert_id('access', 'aid');
-    $str_status = ($status == 0) ? 'deny' : 'allow';
-    $this->assertTrue(db_affected_rows() > 0, "$str_status Mask added for $type '$mask'");
-    $this->_cleanup_masks[] = $aid;
+  public static function getInfo() {
+    return array(
+      'name' => t('User restrictions'),
+      'description' => t('Assure that negative and positive access rules behave as designed.'),
+      'group' => 'User restrictions'
+    );
   }
 
-  function tearDown() {
-    while (sizeof($this->_cleanup_masks) > 0) {
-      $aid = array_pop($this->_cleanup_masks);
-      db_query("DELETE FROM {access} WHERE aid = %d", $aid);
-    }
+  function setUp() {
+    parent::setUp('user_restrictions');
   }
 
   function testAccess() {
-    /* To avoid conflicts with non allowed account creations */
-    $this->drupalVariableSet('user_register', 1);
+    // To avoid conflicts with non allowed account creations.
+    variable_set('user_register', 1);
 
-    $this->addMask('simpletest_block%', 'user');
-    $this->addMask('simpletest_block_allow%', 'user', 1);
+    $this->addMask('simpletest_block%', USER_RESTRICTIONS_USERNAME);
+    $this->addMask('simpletest_block_allow%', USER_RESTRICTIONS_USERNAME, 1);
 
-    /* first try blocked user */
-    $name = $this->randomName(2, 'simpletest_block_');
+    // First try blocked user.
+    $name = 'simpletest_block_' . $this->randomName(6);
     $mail = "$name@example.com";
-    $edit = array('name' => $name,
-                  'mail' => $mail);
+    $edit = array('name' => $name, 'mail' => $mail);
 
     $this->drupalPost('user/register', $edit, t('Create new account'));
 
-    $this->assertNoText(t('Your password and further instructions have been sent to your e-mail address.'), 'blocked user: Your password and further instructions - not found');
-    $this->assertText(t('The name @name has been denied access.', array('@name' => $name)), 'blocked user: denied access - found');
+    $this->assertNoText(
+      t('Your password and further instructions have been sent to your e-mail address.'),
+      t('User has been blocked.')
+    );
+    $this->assertText(
+      t('The name @name has been denied access.', array('@name' => $name)),
+      t('The user has been blocked.')
+    );
 
-    /* now try allowed user */
-    $name = $this->randomName(2, 'simpletest_block_allow_');
+    // Now try allowed user.
+    $name = 'simpletest_block_allow_' . $this->randomName(6);
     $mail = "$name@example.com";
-    $edit = array('name' => $name,
-                  'mail' => $mail);
+    $edit = array('name' => $name, 'mail' => $mail);
 
-    /* We need new cookies */
-    unset($this->ch);
     $this->drupalPost('user/register', $edit, t('Create new account'));
 
-    $this->assertText(t('Your password and further instructions have been sent to your e-mail address.'), 'access user: Your password and further instructions - found');
-    $this->assertNoText(t('The name @name has been denied access.', array('@name' => $name)), 'access user: denied access - not found');
+    $this->assertText(
+      t('Your password and further instructions have been sent to your e-mail address.'),
+      t('User has not been blocked.')
+    );
+    $this->assertNoText(
+      t('The name @name has been denied access.', array('@name' => $name)),
+      t('The user has not been blocked.')
+    );
 
     $user = user_load($edit);
 
-    $this->assertTrue(isset($user->uid), 'user->uid set');
-    $this->assertTrue(($user->uid > 0), 'uid > 0');
-    if (isset($user->uid) && ($user->uid > 0)) {
-      /* delete test user, roles and maybe authmap */
-      db_query('DELETE FROM {users} WHERE uid = %d', $user->uid);
-      db_query('DELETE FROM {users_roles} WHERE uid = %d', $user->uid);
-      db_query('DELETE FROM {authmap} WHERE uid = %d', $user->uid);
-    }
+    $this->assertTrue(isset($user->uid), t('user->uid is set.'));
+    $this->assertTrue(($user->uid > 0), t('The user ID is greater than zero.'));
   }
 }

@@ -2,37 +2,37 @@
 // $Id$
 
 /**
- * Implementation of hook_schema().
+ * Implements hook_schema().
  */
 function user_restrictions_schema() {
   $schema['user_restrictions'] = array(
-    'description' => t('Stores user restrictions.'),
+    'description' => 'Stores user restrictions.',
     'fields' => array(
       'urid' => array(
+        'description' => 'Primary Key: Unique user restriction ID.',
         'type' => 'serial',
         'not null' => TRUE,
-        'description' => t('Primary Key: Unique user restriction ID.'),
       ),
       'mask' => array(
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
         'default' => '',
-        'description' => t('Text mask used for filtering restrictions.'),
+        'description' => 'Text mask used for filtering restrictions.',
       ),
       'type' => array(
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'default' => '',
-        'description' => t('Type of restriction: name or mail'),
-      ),
-      'status' => array(
+        'description' => 'Type of restriction: name (0) or mail (1)',
         'type' => 'int',
+        'size' => 'tiny',
         'not null' => TRUE,
         'default' => 0,
+      ),
+      'status' => array(
+        'description' => 'Whether the restriction is to allow (1), or deny access (0).',
+        'type' => 'int',
         'size' => 'tiny',
-        'description' => t('Whether restriction is to allow(1) or deny(0) access.'),
+        'not null' => TRUE,
+        'default' => 0,
       ),
     ),
     'primary key' => array('urid'),
@@ -42,16 +42,54 @@ function user_restrictions_schema() {
 }
 
 /**
- * @defgroup user_restrictions-updates-6.x-to-7.x User restrictions updates from 6.x to 7.x
- * @{
+ * Implements hook_install().
  */
- 
-/**
- * Import username and e-mail masks from the {access} table.
- */
-function user_restrictions_update_7000() {
-  $ret = array();
-  $ret[] = update_sql("INSERT INTO {user_restrictions} SELECT * FROM {access} WHERE type IN ('%s', '%s')", 'mail', 'name');
-  
-  return $ret;
+function user_restrictions_install() {
+  db_query("UPDATE {system} SET weight = 10 WHERE name = 'user_restrictions' AND type = 'module'");
 }
+
+/**
+ * Imports username and e-mail masks from the {access} table.
+ */
+/*
+function user_restrictions_update_7000(&$sandbox) {
+  db_query("UPDATE {system} SET weight = 10 WHERE name = 'user_restrictions' AND type = 'module'");
+
+  if (!isset($sandbox['progress']) && db_table_exists('access')) {
+    $sandbox['progress'] = 0;
+    $sandbox['current_aid'] = 0;
+    $sandbox['max'] = db_query('SELECT COUNT(DISTINCT aid) FROM {access} WHERE type IN :type')->fetchField();
+  }
+
+  drupal_load('module', 'user_restrictions');
+
+  if (!empty($sandbox['max'])) {
+    $rules = db_select('access')
+      ->condition('aid', $sandbox['current_aid'], '>')
+      ->condition('type', array('mail', 'name'), 'IN')
+      ->range(0, 3)
+      ->orderBy('aid', 'ASC')
+      ->execute();
+
+    foreach ($rules as $rule) {
+      $type = (
+        $rule->type == 'name' ? USER_RESTRICTIONS_USERNAME : USER_RESTRICTIONS_EMAIL
+      );
+      db_merge('user_restrictions')
+        ->key(array(
+          'type' => $type,
+          'mask' => $rule->mask,
+          'pcre' => 0,
+        ))
+        ->fields(array('status' => $rule->status))
+        ->execute();
+
+      $sandbox['progress']++;
+      $sandbox['current_aid'] = $rule->aid;
+    }
+  }
+  $sandbox['#finished'] = (
+    empty($sandbox['max']) ? 1 : ($sandbox['progress'] / $sandbox['max'])
+  );
+}
+*/
