@@ -28,41 +28,33 @@ class UserRestrictionsTestCase extends DrupalWebTestCase {
     $this->addMask('simpletest_block%', USER_RESTRICTIONS_USERNAME);
     $this->addMask('simpletest_block_allow%', USER_RESTRICTIONS_USERNAME, 1);
 
-    // First try blocked user.
+    // First try the blocked user.
     $name = 'simpletest_block_' . $this->randomName(6);
     $mail = "$name@example.com";
     $edit = array('name' => $name, 'mail' => $mail);
 
     $this->drupalPost('user/register', $edit, t('Create new account'));
 
-    $this->assertNoText(
-      t('Your password and further instructions have been sent to your e-mail address.'),
-      t('User has been blocked.')
-    );
     $this->assertText(
-      t('The name @name has been denied access.', array('@name' => $name)),
-      t('The user has been blocked.')
+      t('The name %name is a reserved username, and cannot be used.', array('@name' => $name)),
+      t('The user @name has been blocked.', array('@name' => $name))
     );
 
-    // Now try allowed user.
+    // Now try the allowed user.
     $name = 'simpletest_block_allow_' . $this->randomName(6);
     $mail = "$name@example.com";
     $edit = array('name' => $name, 'mail' => $mail);
 
     $this->drupalPost('user/register', $edit, t('Create new account'));
 
-    $this->assertText(
-      t('Your password and further instructions have been sent to your e-mail address.'),
-      t('The user has not been blocked.')
-    );
     $this->assertNoText(
-      t('The name @name has been denied access.', array('@name' => $name)),
-      t('The user has not been blocked.')
+      t('The name %name is a reserved username, and cannot be used.', array('@name' => $name)),
+      t('The user @name has been blocked.', array('@name' => $name))
     );
 
     $user = user_load($edit);
 
     $this->assertTrue(isset($user->uid), t('user->uid is set.'));
-    $this->assertTrue(($user->uid > 0), t('The user ID is greater than zero.'));
+    $this->assertTrue($user->uid > 0, t('The user ID is greater than zero.'));
   }
 }
