@@ -261,10 +261,8 @@ function user_restrictions_check_email_validate($form, &$form_state) {
 function user_restrictions_check_email_submit($form, &$form_state) {
   if (!empty($form_state['values']['value'])) {
     $value = $form_state['values']['value'];
-    if (user_restrictions_user_check(USER_RESTRICTIONS_EMAIL, $value)) {
-      drupal_set_message(
-        t('The e-mail address %mail is not allowed.', array('%mail' => $value))
-      );
+    if ($error = user_restrictions_user_check(USER_RESTRICTIONS_EMAIL, $value)) {
+      drupal_set_message($error);
     }
     else {
       drupal_set_message(
@@ -282,10 +280,8 @@ function user_restrictions_check_email_submit($form, &$form_state) {
 function user_restrictions_check_username_submit($form, &$form_state) {
   if (!empty($form_state['values']['value'])) {
     $value = $form_state['values']['value'];
-    if (user_restrictions_user_check(USER_RESTRICTIONS_USERNAME, $value)) {
-      drupal_set_message(
-        t('The username %name is not allowed.', array('%name' => $value))
-      );
+    if ($error = user_restrictions_user_check(USER_RESTRICTIONS_USERNAME, $value)) {
+      drupal_set_message($error);
     }
     else {
       drupal_set_message(

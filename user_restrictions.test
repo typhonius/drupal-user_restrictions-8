@@ -53,7 +53,7 @@ class UserRestrictionsTestCase extends DrupalWebTestCase {
 
     $this->assertText(
       t('Your password and further instructions have been sent to your e-mail address.'),
-      t('User has not been blocked.')
+      t('The user has not been blocked.')
     );
     $this->assertNoText(
       t('The name @name has been denied access.', array('@name' => $name)),
