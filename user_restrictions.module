@@ -110,20 +110,16 @@ function user_restrictions_menu() {
  */
 function user_restrictions_permission() {
   $perms = array(
-    'administer user restrictions' => array(
-      'title' => t('Administer user restrictions'),
-      'restrict access' => TRUE,
-    ),
     'edit user restriction rules' => array(
       'title' => t('Edit user restriction rules'),
       'restrict access' => TRUE,
     ),
-    'by-pass user restriction rules' => array(
-      'title' => t('By-pass user restriction rules'),
+    'bypass user restriction rules' => array(
+      'title' => t('Bypass user restriction rules'),
       'restrict access' => TRUE,
     ),
-    'by-pass user restriction rules at login' => array(
-      'title' => t('By-pass user restriction rules at login'),
+    'bypass user restriction rules at login' => array(
+      'title' => t('Bypass user restriction rules at login'),
       'restrict access' => TRUE,
     ),
   );
@@ -141,7 +137,7 @@ function user_restrictions_login_form_validate($form, &$form_state) {
   if (!empty($form_state['uid']) && isset($form_state['values']['name'])) {
     $account = user_load($form_state['uid']);
     if (!empty($account)) {
-      if (user_access('by-pass user restriction rules', $access)) {
+      if (user_access('bypass user restriction rules', $access)) {
         return;
       }
 
@@ -165,7 +161,7 @@ function user_restrictions_login_form_validate($form, &$form_state) {
  */
 function user_restrictions_user_profile_form_validate($form, &$form_state) {
   $account = $form_state['user'];
-  if (user_access('by-pass user restriction rules')) {
+  if (user_access('bypass user restriction rules')) {
     return;
   }
 

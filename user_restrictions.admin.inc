@@ -58,7 +58,8 @@ function user_restrictions_delete_rule_form_submit($form, &$form_state) {
 function user_restrictions_edit_rule_form($form, &$form_state, $rule = NULL) {
   $type_options = array(
     USER_RESTRICTIONS_USERNAME => t('Username'),
-    USER_RESTRICTIONS_EMAIL => t('E-mail'));
+    USER_RESTRICTIONS_EMAIL => t('E-mail')
+  );
 
   if (!isset($rule)) {
     $rule = (object) array(
@@ -91,7 +92,7 @@ function user_restrictions_edit_rule_form($form, &$form_state, $rule = NULL) {
     '#size' => 30,
     '#maxlength' => 64,
     '#default_value' => $rule->mask,
-    '#description' => t('%ampersand matches any number of characters, even zero characters; %underscore matches exactly one character.', array('%ampersand' => '%', '%underscore' => '_')),
+    '#description' => t('%ampersand: Matches any number of characters, even zero characters.<br />%underscore: Matches exactly one character.', array('%ampersand' => '%', '%underscore' => '_')),
     '#required' => TRUE,
   );
 
