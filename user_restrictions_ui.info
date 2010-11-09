@@ -1,0 +1,7 @@
+; $Id$
+name = User restrictions UI
+description = User interface for the User restrictions module.
+core = 7.x
+configure = admin/config/people/user-restrictions
+files[] = user_restrictions_ui.module
+files[] = user_restrictions_ui.admin.inc
