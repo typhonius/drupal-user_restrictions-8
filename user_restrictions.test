@@ -11,9 +11,9 @@ class UserRestrictionsTestCase extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
-      'name' => t('User restrictions'),
-      'description' => t('Assure that negative and positive access rules behave as designed.'),
-      'group' => 'User restrictions'
+      'name' => 'User restrictions',
+      'description' => 'Assure that negative and positive access rules behave as designed.',
+      'group' => 'User restrictions',
     );
   }
 
@@ -25,8 +25,8 @@ class UserRestrictionsTestCase extends DrupalWebTestCase {
     // To avoid conflicts with non allowed account creations.
     variable_set('user_register', 1);
 
-    $this->addMask('simpletest_block%', USER_RESTRICTIONS_USERNAME);
-    $this->addMask('simpletest_block_allow%', USER_RESTRICTIONS_USERNAME, 1);
+    $this->addMask('simpletest_block%', 'name');
+    $this->addMask('simpletest_block_allow%', 'name', 1);
 
     // First try the blocked user.
     $name = 'simpletest_block_' . $this->randomName(6);

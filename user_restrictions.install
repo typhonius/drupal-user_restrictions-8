@@ -21,11 +21,11 @@ function user_restrictions_schema() {
         'description' => 'Text mask used for filtering restrictions.',
       ),
       'type' => array(
-        'description' => 'Type of restriction: name (0) or mail (1)',
-        'type' => 'int',
-        'size' => 'tiny',
+        'description' => 'Type of access rule: name, mail, or any value defined from a third-party module.',
+        'type' => 'varchar',
+        'length' => 255,
         'not null' => TRUE,
-        'default' => 0,
+        'default' => '',
       ),
       'status' => array(
         'description' => 'Whether the restriction is to allow (1), or deny access (0).',
@@ -34,6 +34,17 @@ function user_restrictions_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'expire' => array(
+        'description' => 'A Unix timestamp indicating when the restriction expires.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'type' => array(array('type', 32)),
+      'status' => array('status'),
+      'expire' => array('expire'),
     ),
     'primary key' => array('urid'),
   );
@@ -66,20 +77,14 @@ function user_restrictions_update_7000(&$sandbox) {
   if (!empty($sandbox['max'])) {
     $rules = db_select('access')
       ->condition('aid', $sandbox['current_aid'], '>')
-      ->condition('type', array('mail', 'name'), 'IN')
-      ->range(0, 3)
       ->orderBy('aid', 'ASC')
       ->execute();
 
     foreach ($rules as $rule) {
-      $type = (
-        $rule->type == 'name' ? USER_RESTRICTIONS_USERNAME : USER_RESTRICTIONS_EMAIL
-      );
       db_merge('user_restrictions')
         ->key(array(
-          'type' => $type,
+          'type' => $rule->type,
           'mask' => $rule->mask,
-          'pcre' => 0,
         ))
         ->fields(array('status' => $rule->status))
         ->execute();
