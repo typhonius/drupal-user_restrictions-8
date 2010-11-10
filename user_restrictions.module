@@ -264,6 +264,12 @@ function user_restrictions_user_restrictions_info($id, $arg1 = NULL, $arg2 = NUL
   switch ($id) {
     case 'fields':
       switch ($arg2) {
+        case 'check_mail':
+          return array('mail' => $arg1['values']['value']);
+
+        case 'check_name':
+          return array('name' => $arg1['values']['value']);
+
         case 'login':
           $account = user_load($arg1['uid']);
           return array('name' => $account->name);
@@ -271,8 +277,8 @@ function user_restrictions_user_restrictions_info($id, $arg1 = NULL, $arg2 = NUL
         case 'profile':
         case 'register':
           return array(
-            'mail' => $arg1['mail'],
-            'name' => $arg1['name'],
+            'mail' => $arg1['values']['mail'],
+            'name' => $arg1['values']['name'],
           );
       }
       break;

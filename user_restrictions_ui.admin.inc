@@ -136,6 +136,7 @@ function user_restrictions_ui_overview_form($form, &$form_state) {
     '#empty' => t('There are currently no user restrictions.'),
   );
 
+
   // Show the fieldset only if there are restriction rules.
   if (count($rows)) {
     $form['check_rules'] = array(
