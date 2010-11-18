@@ -11,18 +11,27 @@ class UserRestrictions {
    * The user restriction ID.
    */
   public $urid = 0;
+
   /**
    * The user restriction mask.
    */
   public $mask = '';
+
   /**
    * The user restriction type.
    */
   public $type = '';
+
+  /**
+   * The user restriction sub-type.
+   */
+  public $subtype = '';
+
   /**
    * The user restriction status.
    */
   public $status = 0;
+
   /**
    * When the user restriction expires, or 0 if it doesn't expire.
    */
@@ -33,13 +42,10 @@ class UserRestrictions {
    *
    * This was handled by drupal_is_denied() in version of Drupal prior to 7.x.
    *
-   * @param $type
-   *   The type of input to check ('mail', 'name', etc).
-   * @param $mask
-   *   The input to check.
-   * @param $options
-   *   An array of optional options. The actually used options are:
-   *   - login: when TRUE, the input comes from the login form;
+   * @param $form_state
+   *   The array passed to form API functions.
+   * @param $form_type
+   *   The form for which the function is invoked.
    *
    * @return
    *   A message error if there are restrictions agains the entered value, or
@@ -51,6 +57,7 @@ class UserRestrictions {
     foreach ($fields as $type => $mask) {
       $args = array(
         ':type' => $type,
+        ':subtype' => $form_type,
         ':mask' => $mask,
         ':now' => REQUEST_TIME,
       );
@@ -61,7 +68,7 @@ class UserRestrictions {
         'form_state' => $form_state,
         'form_type' => $form_type,
       );
-      $sql = 'SELECT 1 FROM {user_restrictions} WHERE type = :type AND LOWER(:mask) LIKE LOWER(mask) AND status = :status AND (expire > :now OR expire = 0)';
+      $sql = 'SELECT 1 FROM {user_restrictions} WHERE type = :type AND (subtype = :subtype OR subtype = '') AND LOWER(:mask) LIKE LOWER(mask) AND status = :status AND (expire > :now OR expire = 0)';
 
       // We deny access if the only matching records in the {user_restrictions}
       // table have status 0 (deny). If any have status 1 (allow), or if there are
@@ -87,11 +94,15 @@ class UserRestrictions {
   }
 
   public static function exists($array) {
-    return db_query_range(
-      'SELECT 1 FROM {user_restrictions} WHERE type = :type AND LOWER(:mask) = LOWER(mask)',
-      0, 1,
-      array(':type' => $array['type'], ':mask' => $array['mask'])
-    )->fetchField();
+    $query = db_select('user_restrictions', 'ur')
+      ->fields('ur', array('urid'))
+      ->where('type = :type AND LOWER(:mask) = LOWER(mask)', $array);
+
+    if (isset($array['subtype'])) {
+      $query->condition('subtype', $array['subtype']);
+    }
+    
+    return (boolean) $query->execute()->fetchField();
   }
 
   public function delete() {

@@ -27,6 +27,13 @@ function user_restrictions_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'subtype' => array(
+        'description' => 'Sub-type of access rule.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'status' => array(
         'description' => 'Whether the restriction is to allow (1), or deny access (0).',
         'type' => 'int',
@@ -42,6 +49,7 @@ function user_restrictions_schema() {
       ),
     ),
     'indexes' => array(
+      'subtype' => array(array('subtype', 32)),
       'type' => array(array('type', 32)),
       'status' => array('status'),
       'expire' => array('expire'),
@@ -60,10 +68,24 @@ function user_restrictions_install() {
 }
 
 /**
+ * Adds the sub-type field to the database table.
+ */
+function user_restrictions_update_7000(&$sandbox) {
+  db_add_field('user_restrictions', 'subtype',
+  array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+      'default' => '',
+    ),
+  );
+}
+
+/**
  * Imports username and e-mail masks from the {access} table.
  */
 /*
-function user_restrictions_update_7000(&$sandbox) {
+function user_restrictions_update_7001(&$sandbox) {
   db_query("UPDATE {system} SET weight = 10 WHERE name = 'user_restrictions' AND type = 'module'");
 
   if (!isset($sandbox['progress']) && db_table_exists('access')) {
