@@ -72,12 +72,15 @@ function user_restrictions_install() {
  */
 function user_restrictions_update_7000(&$sandbox) {
   db_add_field('user_restrictions', 'subtype',
-  array(
+    array(
       'type' => 'varchar',
       'length' => 255,
       'not null' => TRUE,
       'default' => '',
     ),
+    array('indexes' => array(
+      'subtype' => array(array('subtype', 32)),
+    ))
   );
 }
 
