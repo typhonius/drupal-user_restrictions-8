@@ -11,7 +11,7 @@
  */
 function user_restrictions_ui_help($path, $arg) {
   if ($path == 'admin/config/people/user-restrictions') {
-    return '<p>'. t("Set up rules for allowable usernames and e-mail address. A rule may either explicitly <q>allow</q> access or <q>deny</q> access based on the rule's <em>Access type</em>, <em>Rule type</em>, and <em>Mask</em>. If the username or e-mail address of an existing account or new registration matches a <q>deny</q> rule, but not an <q>allow</q> rule, then the account will not be created (for new registrations) or able to log in (for existing accounts).") . '</p>';
+    return '<p>' . t("Set up rules for allowable usernames and e-mail address. A rule may either explicitly <q>allow</q> access or <q>deny</q> access based on the rule's <em>Access type</em>, <em>Rule type</em>, and <em>Mask</em>. If the username or e-mail address of an existing account or new registration matches a <q>deny</q> rule, but not an <q>allow</q> rule, then the account will not be created (for new registrations) or able to log in (for existing accounts).") . '</p>';
   }
 }
 

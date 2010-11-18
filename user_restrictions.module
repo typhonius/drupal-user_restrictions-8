@@ -101,7 +101,7 @@ class UserRestrictions {
     if (isset($array['subtype'])) {
       $query->condition('subtype', $array['subtype']);
     }
-    
+
     return (boolean) $query->execute()->fetchField();
   }
 
@@ -228,10 +228,10 @@ function user_restrictions_form_user_register_form_alter(&$form, &$form_state) {
  */
 function user_restrictions_help($path, $arg) {
   if ($path == 'admin/help#user_restrictions') {
-    return t("The user restrictions module allows you to specify rules for allowable usernames, or e-mail addresses. A rule may either explicitly <q>allow</q> access or <q>deny</q> access based on the rule's <em>Access type</em>, <em>Rule type</em>, and <em>Mask</em>. For <em>Username</em> and <em>E-Mail</em> rule types, if the username or e-mail address of an existing account or new registration matches the <em>Mask</em> of a <q>deny</q> rule, but not an <q>allow</q> rule, then the account will not be created (for new registrations) or able to log in (for existing accounts).
+    return '<p>' . t("The user restrictions module allows you to specify rules for allowable usernames, or e-mail addresses. A rule may either explicitly <q>allow</q> access or <q>deny</q> access based on the rule's <em>Access type</em>, <em>Rule type</em>, and <em>Mask</em>. For <em>Username</em> and <em>E-Mail</em> rule types, if the username or e-mail address of an existing account or new registration matches the <em>Mask</em> of a <q>deny</q> rule, but not an <q>allow</q> rule, then the account will not be created (for new registrations) or able to log in (for existing accounts).
       The user restrictions module could also be used to prevent new users from registering with usernames like <q>Admin</q> or with e-mail addresses from certain domains. Existing logged-in users with e-mail addresses or usernames that match a <q>deny</q> rule (but not an <q>allow</q> rule) are not immediately logged out (but once they log out, may not log back in), Be careful to not create a <q>deny</q> rule that includes your administrative account.
       Visitors attempting to view your site from an IP address or hostname that matches a <q>deny</q> rule will receive a <q>banned address</q> message. Drupal checks incoming addresses for potential bans before any other Drupal modules or themes are loaded."
-    ) .'</p>';
+    ) . '</p>';
   }
 }
 
