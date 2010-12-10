@@ -161,15 +161,17 @@ class UserRestrictions {
   }
 
   public static function getStatusOptions() {
-    $info = module_invoke_all('user_restrictions_info', 'status options');
-    drupal_alter('user_restrictions_info', $info, array('status options'));
+    $context = array('status options');
+    $info = module_invoke_all('user_restrictions_info', $context);
+    drupal_alter('user_restrictions_info', $info, $context);
 
     return $info;
   }
 
   public static function getTypeOptions() {
-    $info = module_invoke_all('user_restrictions_info', 'type options');
-    drupal_alter('user_restrictions_info', $info, array('type options'));
+    $context = array('type options');
+    $info = module_invoke_all('user_restrictions_info', $context);
+    drupal_alter('user_restrictions_info', $info, $context);
 
     return $info;
   }
