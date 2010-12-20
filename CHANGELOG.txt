@@ -1,6 +1,10 @@
 # $Id$
 # All the dates reported here are referred to UTC.
 
+2010-12-19
+----------
+#1002362 by arpeggio: Call to undefined method UserRestrictions::status().
+
 2010-12-10
 ----------
 #991804 by kiam: Constant array is passed to drupal_alter().
