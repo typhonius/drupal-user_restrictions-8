@@ -3,6 +3,7 @@
 
 2010-12-19
 ----------
+#1002360 by arpeggio: Syntax error at line 71.
 #1002362 by arpeggio: Call to undefined method UserRestrictions::status().
 
 2010-12-10

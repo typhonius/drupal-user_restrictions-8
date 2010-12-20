@@ -68,7 +68,7 @@ class UserRestrictions {
         'form_state' => $form_state,
         'form_type' => $form_type,
       );
-      $sql = 'SELECT 1 FROM {user_restrictions} WHERE type = :type AND (subtype = :subtype OR subtype = '') AND LOWER(:mask) LIKE LOWER(mask) AND status = :status AND (expire > :now OR expire = 0)';
+      $sql = "SELECT 1 FROM {user_restrictions} WHERE type = :type AND (subtype = :subtype OR subtype = '') AND LOWER(:mask) LIKE LOWER(mask) AND status = :status AND (expire > :now OR expire = 0)";
 
       // We deny access if the only matching records in the {user_restrictions}
       // table have status 0 (deny). If any have status 1 (allow), or if there are
