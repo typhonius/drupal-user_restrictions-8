@@ -1,6 +1,6 @@
 ; $Id$
+
 name = User restrictions
 description = Specify rules for restricting usernames and e-mail addresses.
 core = 7.x
-files[] = user_restrictions.install
 files[] = user_restrictions.module
