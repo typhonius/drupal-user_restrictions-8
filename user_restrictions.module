@@ -53,6 +53,11 @@ class UserRestrictions {
    *   the entered value.
    */
   public static function check($form_state, $form_type = 'login') {
+    $result = &drupal_static('user_restrictions_check', array());
+    if (isset($result[$form_type])) {
+      return $result[$form_type];
+    }
+
     $fields = module_invoke_all('user_restrictions_info', 'fields', $form_state, $form_type);
     foreach ($fields as $type => $mask) {
       $args = array(
@@ -78,14 +83,15 @@ class UserRestrictions {
         !db_query_range($sql, 0, 1, $args + array(':status' => 1))->fetchField()
       );
       $error = array(
-        'field' => &$field,
-        'message' => &$message,
+        'field' => '',
+        'message' => '',
       );
 
       // Allow third-party modules to alter the user restriction rule.
       drupal_alter('user_restrictions', $denied, $error, $context);
 
       if ($denied) {
+        $result[$form_type] = $error;
         break;
       }
     }
