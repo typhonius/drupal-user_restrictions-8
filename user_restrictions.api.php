@@ -12,16 +12,7 @@
  */
 
 /**
- * Allows other modules to change the default settings used by the module.
- *
- * @param $defaults
- *   The array containing the default module settings.
- */
-function hook_opensearch_default_settings_alter(&$defaults) {
-}
-
-/**
- * Allows other modules to change the OpenSearch RSS item.
+ * Allows other modules to change user restrictions.
  *
  * @param $denied
  *   The value of the restriction; TRUE when the restriction is enabled.
