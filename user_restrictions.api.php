@@ -27,7 +27,7 @@ function hook_opensearch_default_settings_alter(&$defaults) {
  *   The value of the restriction; TRUE when the restriction is enabled.
  * @param $error
  *   The message to return to the user when the restriction is enabled.
- * @param
+ * @param $context
  *   An array containing more information about the restriction being checked.
  */
 function hook_user_restrictions_alter(&$denied, &$error, &$context) {
