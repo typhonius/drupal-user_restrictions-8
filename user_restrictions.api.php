@@ -3,7 +3,7 @@
 
 /**
  * @file
- * Hooks provided by the OpenSearch feed module.
+ * Hooks provided by the User restrictions module.
  */
 
 /**
