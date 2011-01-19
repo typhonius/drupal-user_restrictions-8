@@ -196,6 +196,10 @@ class UserRestrictions {
   function status() {
     return $this->status;
   }
+
+  function type() {
+    return $this->type;
+  }
 }
 
 /**

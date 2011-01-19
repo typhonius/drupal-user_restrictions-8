@@ -1,6 +1,10 @@
 # $Id$
 # All the dates reported here are referred to UTC.
 
+2011-01-19
+----------
+#1028254 by kiam: Call to undefined method UserRestrictions::type().
+
 2010-12-19
 ----------
 #1002360 by arpeggio: Syntax error at line 71.
