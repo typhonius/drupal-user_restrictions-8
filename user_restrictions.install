@@ -70,25 +70,27 @@ function user_restrictions_install() {
 /**
  * Adds the sub-type field to the database table.
  */
-function user_restrictions_update_7000(&$sandbox) {
-  db_add_field('user_restrictions', 'subtype',
-    array(
-      'type' => 'varchar',
-      'length' => 255,
-      'not null' => TRUE,
-      'default' => '',
-    ),
-    array('indexes' => array(
-      'subtype' => array(array('subtype', 32)),
-    ))
-  );
+function user_restrictions_update_7100(&$sandbox) {
+  if (!db_field_exists('user_restrictions', 'subtype')) {
+    db_add_field('user_restrictions', 'subtype',
+      array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      array('indexes' => array(
+        'subtype' => array(array('subtype', 32)),
+      ))
+    );
+  }
 }
 
 /**
  * Imports username and e-mail masks from the {access} table.
  */
 /*
-function user_restrictions_update_7001(&$sandbox) {
+function user_restrictions_update_7101(&$sandbox) {
   db_query("UPDATE {system} SET weight = 10 WHERE name = 'user_restrictions' AND type = 'module'");
 
   if (!isset($sandbox['progress']) && db_table_exists('access')) {
