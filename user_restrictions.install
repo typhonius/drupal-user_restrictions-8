@@ -87,12 +87,22 @@ function user_restrictions_update_7100(&$sandbox) {
 }
 
 /**
+ * Updates the Drupal registry.
+ */
+function user_restrictions_update_7101(&$sandbox) {
+  registry_update();
+
+  db_update('system')
+    ->fields(array('weight' => 10))
+    ->condition('name', 'user_restrictions')
+    ->execute();
+}
+
+/**
  * Imports username and e-mail masks from the {access} table.
  */
 /*
-function user_restrictions_update_7101(&$sandbox) {
-  db_query("UPDATE {system} SET weight = 10 WHERE name = 'user_restrictions' AND type = 'module'");
-
+function user_restrictions_update_7102(&$sandbox) {
   if (!isset($sandbox['progress']) && db_table_exists('access')) {
     $sandbox['progress'] = 0;
     $sandbox['current_aid'] = 0;
