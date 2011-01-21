@@ -1,6 +1,10 @@
 # $Id$
 # All the dates reported here are referred to UTC.
 
+2011-01-21
+----------
+#1034650 by kiam: Call to undefined method UserRestrictions::mask().
+
 2011-01-19
 ----------
 #1028254 by kiam: Call to undefined method UserRestrictions::type().

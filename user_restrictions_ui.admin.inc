@@ -19,7 +19,7 @@ function user_restrictions_ui_delete_rule_form($form_state, $rule) {
   $output = confirm_form($form,
     t(
       'Are you sure you want to delete the @type rule for %mask?',
-      array('@type' => $access_types[$rule->type()], '%mask' => $rule->mask())
+      array('@type' => $access_types[$rule->type], '%mask' => $rule->mask)
     ),
     'admin/config/people/user-restrictions',
     t('This action cannot be undone.'),
@@ -58,14 +58,14 @@ function user_restrictions_ui_edit_rule_form($form, &$form_state, $rule = NULL) 
   $form['status'] = array(
     '#type' => 'radios',
     '#title' => t('Access type'),
-    '#default_value' => $rule->status(),
+    '#default_value' => $rule->status,
     '#options' => $rule->getStatusOptions(),
   );
 
   $form['type'] = array(
     '#type' => 'radios',
     '#title' => t('Rule type'),
-    '#default_value' => $rule->type(),
+    '#default_value' => $rule->type,
     '#options' => $rule->getTypeOptions(),
   );
 
@@ -74,7 +74,7 @@ function user_restrictions_ui_edit_rule_form($form, &$form_state, $rule = NULL) 
     '#title' => t('Mask'),
     '#size' => 30,
     '#maxlength' => 64,
-    '#default_value' => $rule->mask(),
+    '#default_value' => $rule->mask,
     '#description' => t('%ampersand: Matches any number of characters, even zero characters.<br />%underscore: Matches exactly one character.', array('%ampersand' => '%', '%underscore' => '_')),
     '#required' => TRUE,
   );
