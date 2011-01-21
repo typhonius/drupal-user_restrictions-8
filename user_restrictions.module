@@ -3,7 +3,7 @@
 
 /**
  * @file
- * Enables restrictions on user names and e-mail addresses.
+ * Specifies rules for restricting the data users can set for their accounts.
  */
 
 /**

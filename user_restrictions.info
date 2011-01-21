@@ -1,6 +1,5 @@
 ; $Id$
-
 name = User restrictions
-description = Specify rules for restricting usernames and e-mail addresses.
+description = Specifies rules for restricting the data users can set for their accounts.
 core = 7.x
 files[] = user_restrictions.classes.inc
