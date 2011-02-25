@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 class UserRestrictionsTestCase extends DrupalWebTestCase {
   protected function addMask($mask, $type, $status = 0) {

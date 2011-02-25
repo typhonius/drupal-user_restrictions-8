@@ -1,4 +1,3 @@
-; $Id$
 
 name = User restrictions UI
 description = User interface for the User restrictions module.

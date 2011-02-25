@@ -1,4 +1,3 @@
-; $Id$
 name = User restrictions
 description = Specifies rules for restricting the data users can set for their accounts.
 core = 7.x
