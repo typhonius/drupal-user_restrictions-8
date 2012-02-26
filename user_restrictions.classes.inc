@@ -104,7 +104,7 @@ class UserRestrictions {
   public static function exists($array) {
     $query = db_select('user_restrictions', 'ur')
     ->fields('ur', array('urid'))
-    ->where('type = :type AND LOWER(:mask) = LOWER(mask)', $array);
+    ->where('type = :type AND LOWER(:mask) = LOWER(mask)', array(':type' => $array['type'], ':mask' => $array['mask']));
 
     if (isset($array['subtype'])) {
       $query->condition('subtype', $array['subtype']);
@@ -121,14 +121,16 @@ class UserRestrictions {
 
   public static function deleteExpired() {
     return db_delete('user_restrictions')
-    ->condition('expire', REQUEST_TIME, '<=')
+    ->condition(db_and()
+      ->condition('expire', REQUEST_TIME, '<=')
+      ->condition('expire', 0, '>'))
     ->execute();
   }
 
   public static function getInstance($id = '') {
     if ($id) {
       $instance = db_query('SELECT * FROM {user_restrictions} WHERE urid = :urid', array(':urid' => $id), array('fetch' => 'UserRestrictions'))
-      ->fetchObject();
+      ->fetch();
     }
     else {
       $instance = new UserRestrictions();
@@ -137,21 +139,26 @@ class UserRestrictions {
     return empty($instance) ? FALSE : $instance;
   }
 
-  public static function getRestrictionTable($header) {
+  public static function getRestrictionTable($header, $destination) {
     $access_types = self::getTypeOptions();
+    $access_statuses = self::getStatusOptions();
     $rules = db_select('user_restrictions', 'ur')
-    ->fields('ur', array('urid', 'type', 'status', 'mask'))
-    ->condition('expire', 0)
+    ->fields('ur', array('urid', 'type', 'status', 'mask', 'expire'))
+    ->condition(db_or()
+      ->condition('expire', REQUEST_TIME, '>=')
+      ->condition('expire', 0))
     ->extend('PagerDefault')
     ->limit(50)
     ->extend('TableSort')
     ->orderByHeader($header)
     ->execute();
 
+    $rows = array();
     foreach ($rules as $rule) {
-      $rows[$rule->urid]['status'] = $rule->status ? t('allow') : t('deny');
+      $rows[$rule->urid]['status'] = $access_statuses[$rule->status];
       $rows[$rule->urid]['type'] = $access_types[$rule->type];
       $rows[$rule->urid]['mask'] = check_plain($rule->mask);
+      $rows[$rule->urid]['expire'] = $rule->expire ? format_date($rule->expire) : t('never');
       $rows[$rule->urid]['operations'] = array(
         'data' => array(
           '#theme' => 'links__user_restrictions_ui_rule_operations',
@@ -172,10 +179,12 @@ class UserRestrictions {
         ),
       );
     }
+    
+    return $rows;
   }
 
   public static function getStatusOptions() {
-    $context = array('status options');
+    $context = 'status options';
     $info = module_invoke_all('user_restrictions_info', $context);
     drupal_alter('user_restrictions_info', $info, $context);
 
@@ -183,7 +192,7 @@ class UserRestrictions {
   }
 
   public static function getTypeOptions() {
-    $context = array('type options');
+    $context = 'type options';
     $info = module_invoke_all('user_restrictions_info', $context);
     drupal_alter('user_restrictions_info', $info, $context);
 
@@ -196,7 +205,7 @@ class UserRestrictions {
     if (!empty($this->urid)) {
       $primary_keys[] = 'urid';
     }
-
+    
     return drupal_write_record('user_restrictions', clone $this, $primary_keys);
   }
 }
