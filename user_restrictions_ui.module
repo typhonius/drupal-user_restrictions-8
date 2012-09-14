@@ -18,7 +18,7 @@ function user_restrictions_ui_help($path, $arg) {
  * Implements hook_menu().
  */
 function user_restrictions_ui_menu() {
-  $edit_restrictions = array('edit user restrictions');
+  $edit_restrictions = array('edit user restriction rules');
   $items = array();
 
   $items['admin/config/people/user-restrictions'] = array(
