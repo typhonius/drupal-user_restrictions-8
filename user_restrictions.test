@@ -2,13 +2,16 @@
 
 class UserRestrictionsTestCase extends DrupalWebTestCase {
   protected function addMask($mask, $type, $status = 0) {
-    db_query(
-      "INSERT INTO {user_restrictions} (mask, type, status) VALUES ('%s', %d, %d)",
-      $mask, $type, $status
-    );
+    db_insert('user_restrictions')
+      ->fields(array(
+        'mask' => $mask,
+        'type' => $type,
+        'status' => $status,
+        ))
+      ->execute();
   }
 
-  public static function getInfo() {
+  static function getInfo() {
     return array(
       'name' => 'User restrictions',
       'description' => 'Assure that negative and positive access rules behave as designed.',
@@ -35,9 +38,12 @@ class UserRestrictionsTestCase extends DrupalWebTestCase {
     $this->drupalPost('user/register', $edit, t('Create new account'));
 
     $this->assertText(
-      t('The name %name is a reserved username, and cannot be used.', array('@name' => $name)),
-      t('The user @name has been blocked.', array('@name' => $name))
+      t('The name @name is not allowed.', array('@name' => $name))
     );
+
+    $user = user_load_by_name($name);
+
+    $this->assertFalse($user, t('User was not created.'));
 
     // Now try the allowed user.
     $name = 'simpletest_block_allow_' . $this->randomName(6);
@@ -47,11 +53,10 @@ class UserRestrictionsTestCase extends DrupalWebTestCase {
     $this->drupalPost('user/register', $edit, t('Create new account'));
 
     $this->assertNoText(
-      t('The name %name is a reserved username, and cannot be used.', array('@name' => $name)),
-      t('The user @name has been blocked.', array('@name' => $name))
+      t('The name @name is not allowed.', array('@name' => $name))
     );
 
-    $user = user_load($edit);
+    $user = user_load_by_name($name);
 
     $this->assertTrue(isset($user->uid), t('user->uid is set.'));
     $this->assertTrue($user->uid > 0, t('The user ID is greater than zero.'));
