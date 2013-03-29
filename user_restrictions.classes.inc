@@ -94,6 +94,11 @@ class UserRestrictions {
 
       if ($denied) {
         $result[$form_type] = $error;
+        // If the rules module is enabled, an event is triggered signifying
+        // that a user has been restricted access.
+        if (module_exists('rules')) {
+          rules_invoke_event('user_restrictions_denied', $type, $mask, $form_type);
+        }
         break;
       }
     }
@@ -111,6 +116,20 @@ class UserRestrictions {
     }
 
     return (boolean) $query->execute()->fetchField();
+  }
+
+  public static function getInstanceByMask($type, $mask) {
+    $result = db_query('SELECT urid FROM {user_restrictions} WHERE type = :type AND mask = :mask', array(':type' => $type, 'mask' => $mask));
+
+    if ($result) {
+      $record = $result->fetchColumn();
+      $instance = self::getInstance($record);
+    }
+    else {
+      $instance = new UserRestrictions();
+    }
+
+    return empty($instance) ? FALSE : $instance;
   }
 
   function delete() {
