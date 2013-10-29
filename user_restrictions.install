@@ -100,18 +100,18 @@ function user_restrictions_update_7101(&$sandbox) {
 /**
  * Imports username and e-mail masks from the {access} table.
  */
-/*
 function user_restrictions_update_7102(&$sandbox) {
   if (!isset($sandbox['progress']) && db_table_exists('access')) {
     $sandbox['progress'] = 0;
     $sandbox['current_aid'] = 0;
-    $sandbox['max'] = db_query('SELECT COUNT(DISTINCT aid) FROM {access} WHERE type IN :type')->fetchField();
+    $sandbox['max'] = db_query("SELECT COUNT(DISTINCT aid) FROM {access}")->fetchField();
   }
 
   drupal_load('module', 'user_restrictions');
 
   if (!empty($sandbox['max'])) {
-    $rules = db_select('access')
+    $rules = db_select('access', 'access')
+      ->fields('access')
       ->condition('aid', $sandbox['current_aid'], '>')
       ->orderBy('aid', 'ASC')
       ->execute();
@@ -121,6 +121,7 @@ function user_restrictions_update_7102(&$sandbox) {
         ->key(array(
           'type' => $rule->type,
           'mask' => $rule->mask,
+          'status' => $rule->status,
         ))
         ->fields(array('status' => $rule->status))
         ->execute();
@@ -133,4 +134,3 @@ function user_restrictions_update_7102(&$sandbox) {
     empty($sandbox['max']) ? 1 : ($sandbox['progress'] / $sandbox['max'])
   );
 }
-*/
