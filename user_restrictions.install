@@ -64,6 +64,7 @@ function user_restrictions_schema() {
  */
 function user_restrictions_install() {
   db_query("UPDATE {system} SET weight = 10 WHERE name = 'user_restrictions' AND type = 'module'");
+  drupal_set_message('With the user_restrictions_ui module enabled, you may ' . l('import access rules', 'admin/config/people/user-restrictions/import') . '.');
 }
 
 /**
@@ -101,36 +102,16 @@ function user_restrictions_update_7101(&$sandbox) {
  * Imports username and e-mail masks from the {access} table.
  */
 function user_restrictions_update_7102(&$sandbox) {
-  if (!isset($sandbox['progress']) && db_table_exists('access')) {
-    $sandbox['progress'] = 0;
-    $sandbox['current_aid'] = 0;
-    $sandbox['max'] = db_query("SELECT COUNT(DISTINCT aid) FROM {access}")->fetchField();
-  }
+  // Use the batch operation defined in user_restrictions_ui
 
-  drupal_load('module', 'user_restrictions');
-
-  if (!empty($sandbox['max'])) {
-    $rules = db_select('access', 'access')
-      ->fields('access')
-      ->condition('aid', $sandbox['current_aid'], '>')
-      ->orderBy('aid', 'ASC')
-      ->execute();
-
-    foreach ($rules as $rule) {
-      db_merge('user_restrictions')
-        ->key(array(
-          'type' => $rule->type,
-          'mask' => $rule->mask,
-          'status' => $rule->status,
-        ))
-        ->fields(array('status' => $rule->status))
-        ->execute();
-
-      $sandbox['progress']++;
-      $sandbox['current_aid'] = $rule->aid;
-    }
-  }
-  $sandbox['#finished'] = (
-    empty($sandbox['max']) ? 1 : ($sandbox['progress'] / $sandbox['max'])
+  $batch = array(
+    'title' => t('Importing'),
+    'operations' => array(
+      array('user_restrictions_ui_import', array()),
+    ),
+    'file' => drupal_get_path('module', 'user_restrictions_ui') . '/user_restrictions_ui.admin.inc',
+    'finished' => 'user_restrictions_ui_import_finished',
   );
+  batch_set($batch);
+
 }
