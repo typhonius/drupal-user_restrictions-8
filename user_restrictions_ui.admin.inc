@@ -335,7 +335,7 @@ function user_restrictions_ui_check_email_validate($form, &$form_state) {
 function user_restrictions_ui_check_email_submit($form, &$form_state) {
   $error = UserRestrictions::check($form_state, 'check_mail');
   if ($error['message'] != '') {
-    drupal_set_message($error['message']);
+    drupal_set_message($error['message'], 'warning');
   }
   else {
     drupal_set_message(
@@ -352,7 +352,7 @@ function user_restrictions_ui_check_email_submit($form, &$form_state) {
 function user_restrictions_ui_check_username_submit($form, &$form_state) {
   $error = UserRestrictions::check($form_state, 'check_name');
   if ($error['message'] != '') {
-    drupal_set_message($error['message']);
+    drupal_set_message($error['message'], 'warning');
   }
   else {
     drupal_set_message(
