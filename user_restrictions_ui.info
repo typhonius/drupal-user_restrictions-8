@@ -1,6 +1,0 @@
-
-name = User restrictions UI
-description = User interface for the User restrictions module.
-core = 7.x
-dependencies[] = user_restrictions
-configure = admin/config/people/user-restrictions
