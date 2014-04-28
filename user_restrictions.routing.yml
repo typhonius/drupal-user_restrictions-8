@@ -1,0 +1,35 @@
+user_restrictions.list_form:
+  path: '/admin/config/people/user-restrictions'
+  defaults:
+    _form: '\Drupal\user_restrictions\Form\UserRestrictionsListForm'
+    _title: 'User Restrictions'
+  requirements:
+    _permission: 'administer user restrictions'
+
+user_restrictions.create_form:
+  path: '/admin/config/people/user-restrictions/add'
+  defaults:
+    _form: '\Drupal\user_restrictions\Form\UserRestrictionsAddForm'
+  requirements:
+    _permission: 'administer user restrictions'
+
+user_restrictions.edit_form:
+  path: '/admin/config/people/user-restrictions/{user_restrictions}/edit'
+  defaults:
+    _form: '\Drupal\user_restrictions\Form\UserRestrictionsEditForm'
+  requirements:
+    _permission: 'administer user restrictions'
+
+user_restrictions.delete_form:
+  path: '/admin/config/people/user-restrictions/{user_restrictions}/delete'
+  defaults:
+    _form: '\Drupal\user_restrictions\Form\UserRestrictionsDeleteForm'
+  requirements:
+    _permission: 'administer user restrictions'
+
+user_restrictions.flush_form:
+  path: '/admin/config/people/user-restrictions/flush'
+  defaults:
+    _form: '\Drupal\user_restrictions\Form\UserRestrictionsFlushForm'
+  requirements:
+    _permission: 'administer user restrictions'

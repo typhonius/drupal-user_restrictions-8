@@ -1,5 +1,7 @@
 <?php
 
+use Drupal\Component\Uuid\Uuid;
+
 /**
  * Implements hook_schema().
  */
@@ -11,6 +13,12 @@ function user_restrictions_schema() {
         'description' => 'Primary Key: Unique user restriction ID.',
         'type' => 'serial',
         'not null' => TRUE,
+      ),
+      'uuid' => array(
+        'description' => 'Unique Key: Universally unique identifier for this entity.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => FALSE,
       ),
       'mask' => array(
         'type' => 'varchar',
@@ -53,6 +61,9 @@ function user_restrictions_schema() {
       'status' => array('status'),
       'expire' => array('expire'),
     ),
+    'unique keys' => array(
+      'uuid' => array('uuid'),
+    ),
     'primary key' => array('urid'),
   );
 
@@ -63,7 +74,8 @@ function user_restrictions_schema() {
  * Implements hook_install().
  */
 function user_restrictions_install() {
-  db_query("UPDATE {system} SET weight = 10 WHERE name = 'user_restrictions' AND type = 'module'");
+  // System table doesn't exist anymore
+  //db_query("UPDATE {system} SET weight = 10 WHERE name = 'user_restrictions' AND type = 'module'");
   drupal_set_message('With the user_restrictions_ui module enabled, you may ' . l('import access rules', 'admin/config/people/user-restrictions/import') . '.');
 }
 

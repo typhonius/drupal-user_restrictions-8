@@ -1,0 +1,6 @@
+user_restrictions.list_form:
+  title: 'User Restrictions'
+  parent: user.admin_index
+  description: 'Specify rules for restricted usernames and e-mail addresses.'
+  weight: -5
+  route_name: user_restrictions.list_form
