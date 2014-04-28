@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\user_restrictions\Form\UserRestrictionsAddRulesForm.
+ * Contains \Drupal\user_restrictions\Form\UserRestrictionsAddForm.
  */
 
 namespace Drupal\user_restrictions\Form;
@@ -14,7 +14,7 @@ use Drupal\Core\Form\FormBase;
 /**
  * Provides a simple example form.
  */
-class UserRestrictionsAddRulesForm extends FormBase {
+class UserRestrictionsAddForm extends FormBase {
 
   /**
    * Implements \Drupal\Core\Form\FormInterface::getFormID().
