@@ -2,4 +2,4 @@ user_restrictions_create_form:
   route_name: user_restrictions.create_form
   title: 'Add rule'
   appears_on:
-    - user_restrictions.list_form
+    - user_restrictions.admin_list

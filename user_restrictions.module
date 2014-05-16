@@ -1,6 +1,6 @@
 <?php
 
-use \Drupal\user_restrictions\UserRestrictions;
+use \Drupal\user_restrictions\UserRestrictionsManager;
 
 /**
  * @file
@@ -9,37 +9,11 @@ use \Drupal\user_restrictions\UserRestrictions;
 
 /**
  * Implements hook_cron().
+ *
+ * Delete expired items in the user_restrictions table.
  */
 function user_restrictions_cron() {
-  UserRestrictions::deleteExpired();
-}
-
-/**
- * Implements hook_form_FORM_ID_alter() for user_login().
- */
-function user_restrictions_form_user_login_alter(&$form, &$form_state) {
-  $form['#validate'][] = 'user_restrictions_login_form_validate';
-}
-
-/**
- * Implements hook_form_FORM_ID_alter() for user_login_block().
- */
-function user_restrictions_form_user_login_block_alter(&$form, &$form_state) {
-  $form['#validate'][] = 'user_restrictions_login_form_validate';
-}
-
-/**
- * Implements hook_form_FORM_ID_alter() for user_profile_form().
- */
-function user_restrictions_form_user_profile_form_alter(&$form, &$form_state) {
-  $form['#validate'][] = 'user_restrictions_user_profile_form_validate';
-}
-
-/**
- * Implements hook_form_FORM_ID_alter() for user_register_form().
- */
-function user_restrictions_form_user_register_form_alter(&$form, &$form_state) {
-  $form['#validate'][] = 'user_restrictions_user_register_form_validate';
+  UserRestrictionsManager::garbageCollection();
 }
 
 /**
@@ -78,75 +52,37 @@ function user_restrictions_permission() {
 }
 
 /**
- * Implements hook_user_restrictions_alter().
+ * Implements hook_form_FORM_ID_alter() for user_login_form().
  */
-function user_restrictions_user_restrictions_alter(&$denied, &$error, $context) {
-  if ($context['type'] == 'mail' && $denied) {
-    $error['field'] = 'mail';
-    $error['message'] = t('The email address %email is not allowed.', array('%email' => $context['mask']));
-  }
-
-  if ($context['type'] == 'name' && $denied) {
-    $error['field'] = 'name';
-    $error['message'] = t('The name %name is not allowed.', array('%name' => $context['mask']));
-  }
+function user_restrictions_form_user_login_form_alter(&$form, &$form_state) {
+  $form['#validate'][] = 'user_restrictions_validate';
 }
 
 /**
- * Implements hook_user_restrictions_info().
+ * Implements hook_form_FORM_ID_alter() for user_register_form().
  */
-function user_restrictions_user_restrictions_info($id, $arg1 = NULL, $arg2 = NULL) {
-  switch ($id) {
-    case 'fields':
-      switch ($arg2) {
-        case 'check_mail':
-          return array('mail' => $arg1['values']['value']);
+function user_restrictions_form_user_register_form_alter(&$form, &$form_state) {
+  $form['#validate'][] = 'user_restrictions_validate';
+}
 
-        case 'check_name':
-          return array('name' => $arg1['values']['value']);
+/**
+ * Implements hook_form_FORM_ID_alter() for user_form().
+ */
+function user_restrictions_form_user_form_alter(&$form, &$form_state) {
+  $form['#validate'][] = 'user_restrictions_validate';
+}
 
-        case 'login':
-          $account = user_load($arg1['uid']);
-          return array('name' => $account->name);
+function user_restrictions_validate($form, $form_state) {
+  //$restriction = new UserRestrictionsCheck($form);
 
-        case 'profile':
-          if(isset($arg1['values']['mail'])) {
-            return array(
-              'mail' => $arg1['values']['mail'],
-              'name' => $arg1['values']['name'],
-            );
-          } else {
-            return array(
-            'mail' => $arg1['user']->mail,
-            'name' => $arg1['user']->name,
-            );
-          }
-        case 'register':
-          return array(
-            'mail' => $arg1['values']['mail'],
-            'name' => $arg1['values']['name'],
-          );
-      }
-      break;
-
-    case 'status options':
-      return array(
-        t('Denied'),
-        t('Allowed'),
-      );
-
-    case 'type options':
-      return array(
-        'mail' => t('Email'),
-        'name' => t('Username'),
-      );
-
-    default:
-      watchdog('user_restrictions',
-               'got an unexpected id value in user_restrictions_user_restrictions_info ' . print_r($id, TRUE),
-               NULL,
-               WATCHDOG_ERROR
-              );
+  if (!\Drupal::currentUser()->hasPermission('bypass user restriction rules')) {
+    $restriction_manager = new UserRestrictionsManager($form, $form_state);
+    if (isset($form_state['values']['name'])) {
+      $restriction_manager->isRestricted('name', $form_state['values']['name']);
+    }
+    if (isset($form_state['values']['mail'])) {
+      $restriction_manager->isRestricted('mail', $form_state['values']['mail']);
+    }
   }
 }
 
@@ -156,62 +92,61 @@ function user_restrictions_user_restrictions_info($id, $arg1 = NULL, $arg2 = NUL
  * @see user_login()
  * @see user_login_block()
  */
-function user_restrictions_login_form_validate($form, &$form_state) {
-  if (!empty($form_state['uid']) && isset($form_state['values']['name'])) {
-    $account = user_load($form_state['uid']);
-    if (!empty($account)) {
-      if ($account->hasPermission('bypass user restriction rules')) {
-        return;
-      }
-
-      $error = UserRestrictions::check($form_state, 'login');
-
-      if ($error['message']) {
-        form_set_error($error['field'], $error['message']);
-      }
-    }
-  }
-}
+//function user_restrictions_login_form_validate($form, &$form_state) {
+//  if (!empty($form_state['uid']) && isset($form_state['values']['name'])) {
+//    $account = user_load($form_state['uid']);
+//    if (!empty($account)) {
+//      if ($account->hasPermission('bypass user restriction rules')) {
+//        return;
+//      }
+//
+//     // $error = UserRestrictionsC::check($form_state, 'login');
+//
+////      if ($error['message']) {
+////        form_set_error($error['field'], $error['message']);
+////      }
+//    }
+//  }
+//}
 
 /**
  * Form validation handler for user_profile_form().
  *
  * @see user_profile_form()
  */
-function user_restrictions_user_profile_form_validate($form, &$form_state) {
-  $account = $form_state['user'];
-//  dpm($account);
-//  if ($account->hasPermission('bypass user restriction rules') || $account->hasPermission('bypass user restriction rules', $account)) {
-//    return;
+//function user_restrictions_user_profile_form_validate($form, &$form_state) {
+//  $account = $form_state['user'];
+////  dpm($account);
+////  if ($account->hasPermission('bypass user restriction rules') || $account->hasPermission('bypass user restriction rules', $account)) {
+////    return;
+////  }
+//
+//  $error = UserRestrictions::check($form_state, 'profile');
+//  if ($error['message']) {
+//    form_set_error($error['field'], $error['message']);
 //  }
+//}
 
-  $error = UserRestrictions::check($form_state, 'profile');
-  if ($error['message']) {
-    form_set_error($error['field'], $error['message']);
-  }
-}
+///**
+// * Form validation handler for user_register_form().
+// *
+// * @see user_register_form()
+// */
+//function user_restrictions_user_register_form_validate($form, &$form_state) {
+////  if (\Drupal::currentUser()->hasPermission('bypass user restriction rules')) {
+////    return;
+////  }
+//
+//  $error = UserRestrictions::check($form_state, 'register');
+//  if ($error['message']) {
+//    \Drupal::formBuilder()->setErrorByName($error['field'], $form_state, $error['message']);
+//  }
+//}
 
 /**
- * Form validation handler for user_register_form().
- *
- * @see user_register_form()
- */
-function user_restrictions_user_register_form_validate($form, &$form_state) {
-//  if (\Drupal::currentUser()->hasPermission('bypass user restriction rules')) {
-//    return;
-//  }
-
-  $error = UserRestrictions::check($form_state, 'register');
-  if ($error['message']) {
-    \Drupal::formBuilder()->setErrorByName($error['field'], $form_state, $error['message']);
-  }
-}
-
-/**
- * Loads the restriction rule from the database.
- *
- * @param $urid
- *   The ID of the restriction rule.
+ * @param mixed $urid
+ * @param bool $reset
+ * @return \Drupal\Core\Entity\EntityInterface
  */
 function user_restrictions_load($urid = NULL, $reset = FALSE) {
   return entity_load('user_restrictions', $urid, $reset);

@@ -34,13 +34,6 @@ function user_restrictions_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'subtype' => array(
-        'description' => 'Sub-type of access rule.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'default' => '',
-      ),
       'status' => array(
         'description' => 'Whether the restriction is to allow (1), or deny access (0).',
         'type' => 'int',
@@ -56,7 +49,6 @@ function user_restrictions_schema() {
       ),
     ),
     'indexes' => array(
-      'subtype' => array(array('subtype', 32)),
       'type' => array(array('type', 32)),
       'status' => array('status'),
       'expire' => array('expire'),
@@ -68,62 +60,4 @@ function user_restrictions_schema() {
   );
 
   return $schema;
-}
-
-/**
- * Implements hook_install().
- */
-function user_restrictions_install() {
-  // System table doesn't exist anymore
-  //db_query("UPDATE {system} SET weight = 10 WHERE name = 'user_restrictions' AND type = 'module'");
-  drupal_set_message('With the user_restrictions_ui module enabled, you may ' . l('import access rules', 'admin/config/people/user-restrictions/import') . '.');
-}
-
-/**
- * Adds the sub-type field to the database table.
- */
-function user_restrictions_update_7100(&$sandbox) {
-  if (!db_field_exists('user_restrictions', 'subtype')) {
-    db_add_field('user_restrictions', 'subtype',
-      array(
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'default' => '',
-      ),
-      array('indexes' => array(
-        'subtype' => array(array('subtype', 32)),
-      ))
-    );
-  }
-}
-
-/**
- * Updates the Drupal registry.
- */
-function user_restrictions_update_7101(&$sandbox) {
-  registry_update();
-
-  db_update('system')
-    ->fields(array('weight' => 10))
-    ->condition('name', 'user_restrictions')
-    ->execute();
-}
-
-/**
- * Imports username and e-mail masks from the {access} table.
- */
-function user_restrictions_update_7102(&$sandbox) {
-  // Use the batch operation defined in user_restrictions_ui
-
-  $batch = array(
-    'title' => t('Importing'),
-    'operations' => array(
-      array('user_restrictions_ui_import', array()),
-    ),
-    'file' => drupal_get_path('module', 'user_restrictions_ui') . '/user_restrictions_ui.admin.inc',
-    'finished' => 'user_restrictions_ui_import_finished',
-  );
-  batch_set($batch);
-
 }

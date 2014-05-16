@@ -1,5 +1,0 @@
-name: 'User Restrictions UI'
-description: 'User interface for the User restrictions module.'
-type: module
-core: 8.x
-package: 'Security'
