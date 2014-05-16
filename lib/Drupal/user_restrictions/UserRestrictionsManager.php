@@ -1,9 +1,8 @@
 <?php
+
 /**
- * Created by PhpStorm.
- * User: typhonius
- * Date: 11/5/14
- * Time: 9:28
+ * @file
+ * Contains \Drupal\user_restrictions\UserRestrictionsManager
  */
 
 namespace Drupal\user_restrictions;

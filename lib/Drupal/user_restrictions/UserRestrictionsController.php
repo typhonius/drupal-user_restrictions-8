@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\user_restrictions\UserRestrictionsController
+ */
+
 namespace Drupal\user_restrictions;
 
 use \Drupal\Core\Entity\ContentEntityFormController;

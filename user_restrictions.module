@@ -1,11 +1,11 @@
 <?php
 
-use \Drupal\user_restrictions\UserRestrictionsManager;
-
 /**
  * @file
  * Specifies rules for restricting the data users can set for their accounts.
  */
+
+use \Drupal\user_restrictions\UserRestrictionsManager;
 
 /**
  * Implements hook_cron().
@@ -72,9 +72,15 @@ function user_restrictions_form_user_form_alter(&$form, &$form_state) {
   $form['#validate'][] = 'user_restrictions_validate';
 }
 
-function user_restrictions_validate($form, $form_state) {
-  //$restriction = new UserRestrictionsCheck($form);
 
+/**
+ * Validation function to pass off names/emails and determine if they are
+ * blocked or allowed on the site.
+ *
+ * @param $form
+ * @param $form_state
+ */
+function user_restrictions_validate($form, $form_state) {
   if (!\Drupal::currentUser()->hasPermission('bypass user restriction rules')) {
     $restriction_manager = new UserRestrictionsManager($form, $form_state);
     if (isset($form_state['values']['name'])) {
@@ -85,63 +91,6 @@ function user_restrictions_validate($form, $form_state) {
     }
   }
 }
-
-/**
- * Form validation handler for user_login(), and user_login_block().
- *
- * @see user_login()
- * @see user_login_block()
- */
-//function user_restrictions_login_form_validate($form, &$form_state) {
-//  if (!empty($form_state['uid']) && isset($form_state['values']['name'])) {
-//    $account = user_load($form_state['uid']);
-//    if (!empty($account)) {
-//      if ($account->hasPermission('bypass user restriction rules')) {
-//        return;
-//      }
-//
-//     // $error = UserRestrictionsC::check($form_state, 'login');
-//
-////      if ($error['message']) {
-////        form_set_error($error['field'], $error['message']);
-////      }
-//    }
-//  }
-//}
-
-/**
- * Form validation handler for user_profile_form().
- *
- * @see user_profile_form()
- */
-//function user_restrictions_user_profile_form_validate($form, &$form_state) {
-//  $account = $form_state['user'];
-////  dpm($account);
-////  if ($account->hasPermission('bypass user restriction rules') || $account->hasPermission('bypass user restriction rules', $account)) {
-////    return;
-////  }
-//
-//  $error = UserRestrictions::check($form_state, 'profile');
-//  if ($error['message']) {
-//    form_set_error($error['field'], $error['message']);
-//  }
-//}
-
-///**
-// * Form validation handler for user_register_form().
-// *
-// * @see user_register_form()
-// */
-//function user_restrictions_user_register_form_validate($form, &$form_state) {
-////  if (\Drupal::currentUser()->hasPermission('bypass user restriction rules')) {
-////    return;
-////  }
-//
-//  $error = UserRestrictions::check($form_state, 'register');
-//  if ($error['message']) {
-//    \Drupal::formBuilder()->setErrorByName($error['field'], $form_state, $error['message']);
-//  }
-//}
 
 /**
  * @param mixed $urid

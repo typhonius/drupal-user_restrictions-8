@@ -1,9 +1,8 @@
 <?php
+
 /**
- * Created by PhpStorm.
- * User: typhonius
- * Date: 7/5/14
- * Time: 12:28
+ * @file
+ * Contains \Drupal\user_restrictions\Form\UserRestrictionsDeleteForm
  */
 
 namespace Drupal\user_restrictions\Form;
