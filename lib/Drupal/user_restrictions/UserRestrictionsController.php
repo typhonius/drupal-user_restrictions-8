@@ -7,14 +7,14 @@
 
 namespace Drupal\user_restrictions;
 
-use \Drupal\Core\Entity\ContentEntityFormController;
+use Drupal\Core\Entity\ContentEntityForm;
 use \Drupal\Core\Entity\EntityManagerInterface;
 use \Drupal\user_restrictions\Entity\UserRestrictions;
 
 /**
  * {@inheritdoc}
  */
-class UserRestrictionsController extends ContentEntityFormController {
+class UserRestrictionsController extends ContentEntityForm {
 
   /**
    * {@inheritdoc}
