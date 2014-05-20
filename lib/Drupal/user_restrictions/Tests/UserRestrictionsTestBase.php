@@ -23,6 +23,10 @@ class UserRestrictionsTestBase extends WebTestBase{
    */
   protected function setUp() {
     parent::setUp();
+
+    // Allow registration by site visitors without administrator approval.
+    $config = \Drupal::config('user.settings');
+    $config->set('register', USER_REGISTER_VISITORS)->save();
   }
 
   /**

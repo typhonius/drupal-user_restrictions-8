@@ -26,15 +26,10 @@ class UserRestrictionsLoginTest extends UserRestrictionsTestBase {
 
     // Create some default User Restrictions
     $this->createRestrictions();
-
-    // Allow registration by site visitors without administrator approval.
-    $config = \Drupal::config('user.settings');
-    $config->set('register', USER_REGISTER_VISITORS)->save();
   }
 
   /**
-   * Create a user through the administration interface and ensure that it
-   * displays in the user list.
+   * Ensure a user cannot log in if their name is on the blacklist
    */
   protected function testUserRestrictionsCheckNameBlacklist() {
     $this->drupalGet('user/register');
@@ -48,8 +43,8 @@ class UserRestrictionsLoginTest extends UserRestrictionsTestBase {
   }
 
   /**
-   * Create a user through the administration interface and ensure that it
-   * displays in the user list.
+   * Ensure a user with a whitelisted name can log in despite having blacklisted
+   * patterns in their name.
    */
   protected function testUserRestrictionsCheckNameWhitelist() {
     $this->drupalGet('user/register');
@@ -63,8 +58,7 @@ class UserRestrictionsLoginTest extends UserRestrictionsTestBase {
   }
 
   /**
-   * Create a user through the administration interface and ensure that it
-   * displays in the user list.
+   * Ensure a user cannot log in if their email is on the blacklist
    */
   protected function testUserRestrictionsCheckMailBlacklist() {
     $this->drupalGet('user/register');
@@ -78,8 +72,8 @@ class UserRestrictionsLoginTest extends UserRestrictionsTestBase {
   }
 
   /**
-   * Create a user through the administration interface and ensure that it
-   * displays in the user list.
+   * Ensure a user with a whitelisted email can log in despite having blacklisted
+   * patterns in their email.
    */
   protected function testUserRestrictionsCheckMailWhitelist() {
     $this->drupalGet('user/register');
